@@ -42,4 +42,23 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
-.cache/ 
+.cache/
+
+# Development files
+**/scripts/
+**/seed.js
+**/migrate*.js
+**/check*.js
+**/Sample.js
+**/sample.js
+
+# Database
+**/database/seed.js
+**/database/migrate*.js
+**/database/check*.js
+
+# Local development
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local 

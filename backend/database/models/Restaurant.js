@@ -22,6 +22,16 @@ const restaurantSchema = new mongoose.Schema({
     zipCode: {
       type: String,
       required: true
+    },
+    coordinates: {
+      latitude: {
+        type: Number,
+        required: true
+      },
+      longitude: {
+        type: Number,
+        required: true
+      }
     }
   },
   description: {
@@ -51,5 +61,8 @@ const restaurantSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+// Add geospatial index for location-based queries
+restaurantSchema.index({ "location.coordinates": "2dsphere" });
 
 module.exports = mongoose.model('Restaurant', restaurantSchema); 

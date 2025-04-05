@@ -6,6 +6,42 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [userLocation, setUserLocation] = useState(null);
+  const [nearbyRestaurants, setNearbyRestaurants] = useState([]);
+  const [selectedArea, setSelectedArea] = useState('');
+  const [useManualLocation, setUseManualLocation] = useState(false);
+
+  // Available areas in Pune
+  const puneAreas = [
+    'Katraj',
+    'Swargate',
+    'PCMC',
+    'Kothrud',
+    'Warje',
+    'Koregaon Park',
+    'Viman Nagar',
+    'Hadapsar',
+    'Bund Garden',
+    'Deccan'
+  ];
+
+  useEffect(() => {
+    // Get user's location
+    if (navigator.geolocation && !useManualLocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          setUserLocation(null);
+        }
+      );
+    }
+  }, [useManualLocation]);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -16,6 +52,31 @@ const Home = () => {
         }
         const data = await response.json();
         setRestaurants(data);
+        
+        // Filter restaurants based on location or selected area
+        if (useManualLocation && selectedArea) {
+          const areaRestaurants = data.filter(restaurant => 
+            restaurant.location.address.toLowerCase().includes(selectedArea.toLowerCase())
+          );
+          setNearbyRestaurants(areaRestaurants);
+        } else if (userLocation) {
+          const nearby = data.filter(restaurant => {
+            if (!restaurant.location?.coordinates?.latitude || !restaurant.location?.coordinates?.longitude) {
+              return false;
+            }
+            
+            const distance = calculateDistance(
+              userLocation.latitude,
+              userLocation.longitude,
+              restaurant.location.coordinates.latitude,
+              restaurant.location.coordinates.longitude
+            );
+            return distance <= 5;
+          });
+          setNearbyRestaurants(nearby);
+        } else {
+          setNearbyRestaurants([]);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -24,12 +85,37 @@ const Home = () => {
     };
 
     fetchRestaurants();
-  }, []);
+  }, [userLocation, selectedArea, useManualLocation]);
 
-  const filteredRestaurants = restaurants.filter(restaurant =>
-    restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Calculate distance between two points using Haversine formula
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    if (!lat1 || !lon1 || !lat2 || !lon2) {
+      return Infinity;
+    }
+
+    const R = 6371;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  const toRad = (value) => {
+    return value * Math.PI / 180;
+  };
+
+  const filteredRestaurants = searchTerm
+    ? restaurants.filter(restaurant =>
+        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : nearbyRestaurants.length > 0
+    ? nearbyRestaurants
+    : restaurants;
 
   if (loading) {
     return (
@@ -62,11 +148,54 @@ const Home = () => {
         <div className="relative container mx-auto px-4 py-24">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              Discover Amazing Restaurants
+              Discover Amazing Restaurants in Pune
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-gray-100">
-              Find the best food in your area and experience culinary excellence
+              Find the best food near you and experience culinary excellence
             </p>
+            
+            {/* Location Selection */}
+            <div className="mb-6">
+              <div className="flex items-center justify-center space-x-4 mb-4">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    checked={!useManualLocation}
+                    onChange={() => setUseManualLocation(false)}
+                    className="form-radio"
+                  />
+                  <span>Use my location</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    checked={useManualLocation}
+                    onChange={() => setUseManualLocation(true)}
+                    className="form-radio"
+                  />
+                  <span>Select area</span>
+                </label>
+              </div>
+
+              {useManualLocation && (
+                <div className="max-w-md mx-auto">
+                  <select
+                    value={selectedArea}
+                    onChange={(e) => setSelectedArea(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  >
+                    <option value="">Select an area</option>
+                    {puneAreas.map((area) => (
+                      <option key={area} value={area}>
+                        {area}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Search Bar */}
             <div className="max-w-xl mx-auto">
               <input
                 type="text"
@@ -84,10 +213,22 @@ const Home = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-            Featured Restaurants
+            {searchTerm 
+              ? 'Search Results' 
+              : useManualLocation && selectedArea
+              ? `Restaurants in ${selectedArea}`
+              : userLocation
+              ? 'Restaurants Near You'
+              : 'All Restaurants'}
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Explore our curated selection of the finest restaurants in your area
+            {searchTerm 
+              ? 'Find your favorite restaurants'
+              : useManualLocation && selectedArea
+              ? `Explore restaurants in ${selectedArea}`
+              : userLocation
+              ? 'Explore our curated selection of the finest restaurants in your area'
+              : 'Browse through all restaurants in Pune'}
           </p>
         </div>
 

@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import RestaurantDetail from './pages/RestaurantDetail';
 import OrderConfirmation from './pages/OrderConfirmation';
+import Restaurants from './pages/Restaurants';
 import Navbar from './components/Navbar';
 import Cart from './components/Cart';
 import { CartProvider } from './context/CartContext';
@@ -26,6 +27,7 @@ const AppContent = () => {
       <main className="pt-16">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/restaurants" element={<Restaurants />} />
           <Route path="/restaurant/:id" element={<RestaurantDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
