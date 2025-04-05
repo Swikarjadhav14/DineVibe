@@ -25,21 +25,11 @@ const Restaurants = () => {
 
   // Available cuisines
   const cuisines = [
-    'North Indian',
-    'South Indian',
-    'Maharashtrian',
+    'Indian',
     'Chinese',
     'Italian',
     'Mexican',
-    'Japanese',
-    'Thai',
-    'BBQ',
-    'Cafe',
-    'Multi-cuisine',
-    'Indian Fusion',
-    'Regional',
-    'International',
-    'Indian Sweets'
+    'Fast Food'
   ];
 
   useEffect(() => {

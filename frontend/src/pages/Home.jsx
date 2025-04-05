@@ -10,6 +10,7 @@ const Home = () => {
   const [nearbyRestaurants, setNearbyRestaurants] = useState([]);
   const [selectedArea, setSelectedArea] = useState('');
   const [useManualLocation, setUseManualLocation] = useState(false);
+  const [selectedCuisine, setSelectedCuisine] = useState('');
 
   // Available areas in Pune
   const puneAreas = [
@@ -23,6 +24,15 @@ const Home = () => {
     'Hadapsar',
     'Bund Garden',
     'Deccan'
+  ];
+
+  // Available cuisines
+  const cuisines = [
+    'Indian',
+    'Chinese',
+    'Italian',
+    'Mexican',
+    'Fast Food'
   ];
 
   useEffect(() => {
@@ -108,14 +118,25 @@ const Home = () => {
     return value * Math.PI / 180;
   };
 
-  const filteredRestaurants = searchTerm
-    ? restaurants.filter(restaurant =>
-        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredRestaurants = restaurants.filter(restaurant => {
+    // Apply search filter
+    const matchesSearch = searchTerm
+      ? restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : nearbyRestaurants.length > 0
-    ? nearbyRestaurants
-    : restaurants;
+      : true;
+
+    // Apply cuisine filter
+    const matchesCuisine = selectedCuisine === 'All' || !selectedCuisine
+      ? true
+      : restaurant.cuisine.toLowerCase() === selectedCuisine.toLowerCase();
+
+    // Apply location filter
+    const matchesLocation = nearbyRestaurants.length > 0
+      ? nearbyRestaurants.some(r => r._id === restaurant._id)
+      : true;
+
+    return matchesSearch && matchesCuisine && matchesLocation;
+  });
 
   if (loading) {
     return (
@@ -193,6 +214,22 @@ const Home = () => {
                   </select>
                 </div>
               )}
+            </div>
+
+            {/* Cuisine Selection */}
+            <div className="max-w-xl mx-auto mb-6">
+              <select
+                value={selectedCuisine}
+                onChange={(e) => setSelectedCuisine(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                <option value="">All Cuisines</option>
+                {cuisines.map((cuisine) => (
+                  <option key={cuisine} value={cuisine}>
+                    {cuisine}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Search Bar */}
