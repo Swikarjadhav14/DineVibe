@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, signout } = useAuth();
   const { cart } = useCart();
 
   return (
@@ -39,7 +39,7 @@ const Navbar = () => {
               <>
                 <span className="text-gray-600">Hello, {user.name}</span>
                 <button
-                  onClick={logout}
+                  onClick={signout}
                   className="bg-[#E23744] text-white px-4 py-2 rounded-lg hover:bg-[#C62F3B]"
                 >
                   Sign Out
