@@ -10,15 +10,6 @@
 
 ---
 
-## 🧱 Tech Stack
-
-- **Frontend:** Vite + React.js (Dockerized)
-- **Backend:** Flask (Python) with RESTful APIs (Dockerized)
-- **Database:** MongoDB (can be connected via URI)
-- **Deployment:** Docker, DuckDNS
-
----
-
 ## 🐳 Docker Images on Docker Hub
 
 You can directly pull and run the images from Docker Hub:
