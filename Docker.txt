@@ -1,0 +1,25 @@
+create frontend.env and backend.env with their values
+
+frontend.env
+MONGODB_URI=mongodb+srv://swikarjadhav04:swikarjadhav04@cluster0.wdbpvlk.mongodb.net/dinevibe
+JWT_SECRET=swikarjadhav04
+PORT=5001
+NODE_ENV=development
+
+backend.env
+VITE_API_URL=http://localhost:5001
+
+
+creating a network for container - container communication
+$ docker network create dinevibe-net
+
+pulling images from docker hub
+$ docker pull swikarjadhav04/dinevibe-backend
+$ docker pull swikarjadhav04/dinevibe-frontend
+
+running images on containers
+$ docker run -d --name dinevibe-frontend -p 5173:5173 --env-file frontend.env --network dinevibe-net swikarjadhav04/dinevibe-frontend
+$ docker run -d --name dinevibe-backend -p 5001:5001 --env-file backend.env --network dinevibe-net swikarjadhav04/dinevibe-backend
+
+browse
+http://localhost:5173/
