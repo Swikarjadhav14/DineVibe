@@ -9,9 +9,9 @@ backend/node_modules/
 **/.env
 frontend/.env
 backend/.env
-./frontend.env
-./backend.env
-./Docker.txt
+frontend.env
+backend.env
+Docker.txt
 
 # Build outputs
 dist/
